@@ -1,0 +1,47 @@
+{
+  "kind": "category",
+  "name": "调参",
+  "cssConfig": {
+    "icon": "extensionsIcon categoryIcon",
+    "label": "categoryLabel"
+  },
+  "colour": "210",
+  "contents": [
+    {
+      "kind": "label",
+      "text": "创建参数调节面板"
+    },
+    {
+      "kind": "block",
+      "type": "load_tweakpane_script_plugin"
+    },
+    {
+      "kind":"block",
+      "type":"pane_add_slider_plugin"
+    },
+    {
+      "kind":"block",
+      "type":"pane_add_list_plugin"
+    },
+    {
+      "kind":"block",
+      "type":"pane_add_checkbox_plugin"
+    },
+    {
+      "kind":"block",
+      "type":"pane_add_color_plugin"
+    },
+    {
+      "kind":"block",
+      "type":"pane_add_button_plugin"
+    },
+    {
+      "kind":"block",
+      "type":"pane_add_text_plugin"
+    },
+    {
+      "kind":"block",
+      "type":"pane_get_value_plugin"
+    }
+  ]
+}

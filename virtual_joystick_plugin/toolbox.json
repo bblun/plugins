@@ -1,0 +1,46 @@
+{
+  "kind": "category",
+  "name": "摇杆",
+  "cssConfig": {
+    "icon": "extensionsIcon categoryIcon",
+    "label": "categoryLabel"
+  },
+  "colour": "210",
+  "contents": [
+    {
+      "kind": "label",
+      "text": "创建虚拟摇杆"
+    },
+    {
+      "kind": "block",
+      "type": "load_nipplejs_script_plugin"
+    },
+    {
+      "kind": "block",
+      "type": "create_joystick_plugin",
+      "inputs": {
+        "ID": {
+          "shadow": {
+            "type": "text",
+            "field": {
+              "TEXT": "zoneJoystick"
+            }
+          }
+        },
+        "OPTIONS": {
+          "shadow": {
+            "type": "empty_object"
+          }
+        }
+      }
+    },
+    {
+      "kind": "block",
+      "type": "listen_joystick_event_plugin"
+    },
+    {
+      "kind": "block",
+      "type": "joystick_get_value_plugin"
+    }
+  ]
+}

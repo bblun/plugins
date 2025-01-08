@@ -1,0 +1,105 @@
+// https://www.npmjs.com/package/nipplejs?activeTab=readme
+
+const { Blocks, inputs, FieldDropdown } = Blockly;
+const Msg = {
+  _COLOUR: 210,
+  scriptUrl: "https://cdn.jsdelivr.net/npm/nipplejs/dist/nipplejs.js",
+  load_nipplejs_script_plugin: '从远程服务器加载脚本并初始化，可以将脚本下载到项目路径下，从本地加载。\n当脚本加载完成后，将执行回调插槽中的拼图。',
+  create_joystick_plugin: '创建虚拟摇杆。此拼图仅在加载摇杆脚本拼图的回调插槽内有效。\n通过此拼图右键菜单-创建选项，可定制不同类型的摇杆',
+  listen_joystick_event_plugin: '用于监听摇杆事件。通过拼图右键菜单-创建值，可获取摇杆变化时的数据。',
+  joystick_get_value_plugin: '获取摇杆变化时的数据。此拼图仅在监听摇杆事件拼图的回调插槽内有效。\n返回值：{\nangle:{radian: 0, degree: 0}, \ndirection: {x: "left", y: "top", angle: "left"}, \ndistance: -10, \nforce: 0.1\n}'
+}
+
+Blocks['load_nipplejs_script_plugin'] = {
+  init() {
+    const url = this.appendValueInput("URL")
+      .appendField(`加载 摇杆脚本`)
+      .setCheck('String');
+    this.appendStatementInput("ON_FINISH");
+    this.setColour(Msg._COLOUR);
+    this.setInputsInline(true);
+    this.setPreviousStatement(true);
+    this.setNextStatement(true);
+    this.setTooltip(Msg.load_nipplejs_script_plugin);
+    blocklyExt.updateShadow(url, "TEXT", Msg.scriptUrl)
+  }
+}
+
+const joystickOptions = new blocklyExt.DropdownHelper([
+  ['颜色', 'color', 'TEXT', 'white', '摇杆的颜色，支持css输入，如：#ffffff'],
+  ['大小', 'size', 'NUM', 100, '指定摇杆外圈大小，默认100px，内圈是其一半'],
+  ['指向阈值', 'threshold', 'NUM', 0.1, '指定摇杆指向改变的有效移动距离，至少大于0.1'],
+  ['淡化时间', 'fadeTime', 'NUM', 250, '指定摇杆在触发与释放之间的过渡时间'],
+  ['多点触摸', 'multitouch', 'BOOL', 'FALSE', '是否启用多点触摸'],
+  ['最大触点数量', 'maxNumberOfNipples', 'NUM', 1, '启用多点触摸时，指定最多支持几个触点？'],
+  ['仅数据', 'dataOnly', 'BOOL', 'FALSE', '不创建图形'],
+  ['位置', 'position', 'OBJECT', null, '静态static模式下，通过指定top bottom left right的值设置摇杆的位置'],
+  ['模式', 'mode', 'TEXT', 'dynamic', '指定摇杆的模式。\n可选值：\ndynamic - 动态模式\nstatic - 静态模式\nsemi - 混合模式'],
+  ['摇杆回中', 'restJoystick', 'BOOL', 'TRUE', '释放摇杆时自动回中'],
+  ['回中不透明度', 'restOpacity', 'NUM', 0.5, '设置回中时摇杆的不透明度'],
+  ['锁定X', 'lockX', 'BOOL', 'FALSE', '限制摇杆只能沿X轴运动'],
+  ['锁定Y', 'lockY', 'BOOL', 'FALSE', '限制摇杆只能沿Y轴运动'],
+  ['捕获距离', 'catchDistance', 'NUM', 200, '在混合semi模式下指定回收之前摇杆的距离范围'],
+  ['形状', 'shape', 'TEXT', 'circle', '摇杆外形，可选值：\ncircle - 圆形\nsquare - 方形'],
+  ['动态页面', 'dynamicPage', 'BOOL', 'FALSE', '如果网页包含动态元素可开启'],
+  ['跟随', 'follow', 'BOOL', 'FALSE', '使摇杆跟随触点，使摇杆可拖动'],
+]);
+
+blocklyExt.createObjectOpiontsBlock({
+  blockType: "joystick_options_plugin",
+  dropdownHelper: joystickOptions,
+  style: Msg._COLOUR
+});
+
+Blocks['create_joystick_plugin'] = {
+  init() {
+    this.appendValueInput('ID')
+      .appendField(`创建 摇杆 ID`)
+    this.appendValueInput('OPTIONS')
+      .appendField('选项')
+      .setCheck('Object');
+    this.setInputsInline(true);
+    this.setOutput(true, null);
+    this.setColour(Msg._COLOUR);
+    this.setTooltip(Msg.create_joystick_plugin);
+    this.mixin(blocklyExt.createContextMenuBlockMixin('joystick_options_plugin', '选项'));
+  }
+}
+
+Blocks['listen_joystick_event_plugin'] = {
+  init() {
+    this.appendValueInput('JOYSTICK')
+      .appendField(`监听 摇杆`)
+      .setCheck(null);
+    this.appendDummyInput()
+      .appendField(new FieldDropdown([
+        ['开始', 'start'],
+        ['结束', 'end'],
+        ['移动', 'move'],
+      ]), 'EVENT')
+      .appendField('事件')
+      .setAlign(inputs.Align.RIGHT);
+    this.appendStatementInput("DO_CB")
+      .setCheck(null)
+      .setAlign(inputs.Align.RIGHT)
+      .appendField('执行');
+    this.setColour(Msg._COLOUR);
+    this.setInputsInline(true);
+    this.setPreviousStatement(true, null);
+    this.setNextStatement(true, null);
+    this.setTooltip(Msg.listen_joystick_event_plugin);
+    this.mixin(blocklyExt.createContextMenuBlockMixin('joystick_get_value_plugin', '值'));
+  }
+}
+
+Blocks['joystick_get_value_plugin'] = {
+  init() {
+    this.appendDummyInput()
+      .appendField('值');
+    this.setInputsInline(true);
+    this.setOutput(true);
+    this.setColour(Msg._COLOUR);
+    this.setTooltip(Msg.joystick_get_value_plugin);
+    this.mixin(blocklyExt.createSurroundCheckMixin('listen_joystick_event_plugin'));
+  }
+}

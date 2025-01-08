@@ -1,0 +1,19 @@
+{
+  "kind": "category",
+  "name": "加载",
+  "cssConfig": {
+    "icon": "extensionsIcon categoryIcon",
+    "label": "categoryLabel"
+  },
+  "colour": 300,
+  "contents": [{
+      "kind": "label",
+      "text": "加载"
+    },
+    {
+      "kind": "block",
+      "type": "custom_loading_screen"
+    }
+    
+  ]
+}

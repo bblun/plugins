@@ -1,0 +1,217 @@
+const { Blocks, inputs, FieldCheckbox } = Blockly;
+const Msg = {
+  _TITLE: '标题',
+  _LABEL: '标签',
+  _TEXT: '文本',
+  _MIN: '最小值',
+  _MAX: '最大值',
+  _STEP: '步进',
+  _VALUE: '控件值',
+  _CHECKED: '勾选',
+  _OPTIONS: '选项',
+  _ON_CHANGE: '当改变时',
+  _ON_CLICK: '当点击时',
+  _COLOUR: 210,
+  scriptUrl: "https://unpkg.com/tweakpane@3.1.10/dist/tweakpane.js",
+  load_tweakpane_script_plugin: '从远程服务器加载脚本并初始化，可以将脚本下载到项目路径下，从本地加载。\n当加载完成并完成初始化设置后，将执行回调插槽中的拼图。\n注意，此插件仅支持Tweakpane 3.0版本，不支持4.0及以上',
+  pane_add_text_plugin: '添加文本控件。\n参数：标签 - 该控件的标签名\n文本 - 文本内容\n当改变时 - 当控件的值发生改变时，执行该插槽中的拼图',
+  pane_add_slider_tooltip: '向面板中添加滑块控件。通过右键菜单-创建选项，设置滑块参数。',
+  pane_add_list_tooltip: '向面板中添加下拉列表控件。\n参数：\n标签 - 显示的标签名。\n选项 - 是一个对象，键表示显示的选项，值表示选项的值。',
+  pane_add_checkbox_tooltip: '向面板中添加单选框控件',
+  pane_add_color_tooltip: '向面板中添加拾色器控件',
+  pane_add_button_tooltip: '向面板中添加按钮控件',
+  pane_add_text_tooltip: '向面板中添加文本输入控件',
+  pane_get_value_tooltip: '获取控件的值',
+}
+const sliderOptions = new blocklyExt.DropdownHelper([
+  [Msg._MIN, 'min', 'NUM', '0'],
+  [Msg._MAX, 'max', 'NUM', '1'],
+  [Msg._STEP, 'step', 'NUM', '0.1'],
+  [Msg._VALUE, 'value', 'NUM', '0.5'],
+])
+
+blocklyExt.createObjectOpiontsBlock({
+  blockType: "pane_slider_options_plugin",
+  dropdownHelper: sliderOptions,
+  style: Msg._COLOUR
+});
+
+Blocks['load_tweakpane_script_plugin'] = {
+  init() {
+    const url = this.appendValueInput("URL")
+      .appendField(`加载 调参脚本`)
+      .setCheck('String');
+    this.appendStatementInput("ON_FINISH");
+    this.setColour(210);
+    this.setInputsInline(true);
+    this.setPreviousStatement(true);
+    this.setNextStatement(true);
+    this.setTooltip(Msg.load_tweakpane_script_plugin);
+    blocklyExt.updateShadow(url, "TEXT", Msg.scriptUrl)
+  }
+}
+
+Blocks['pane_add_slider_plugin'] = {
+  init() {
+    this.appendDummyInput()
+      .appendField(`滑块`)
+    const label = this.appendValueInput('LABEL')
+      .appendField(Msg._LABEL)
+      .setAlign(inputs.Align.RIGHT)
+      .setCheck('String');
+    const options = this.appendValueInput('OPTIONS')
+      .appendField(Msg._OPTIONS)
+      .setAlign(inputs.Align.RIGHT)
+      .setCheck('Object');
+    this.appendStatementInput("DO_CB")
+      .setCheck(null)
+      .appendField(Msg._ON_CHANGE);
+    this.setColour(Msg._COLOUR);
+    this.setInputsInline(true);
+    this.setPreviousStatement(true, null);
+    this.setNextStatement(true, null);
+    this.setTooltip(Msg.pane_add_slider_tooltip);
+    this.mixin(blocklyExt.createContextMenuBlockMixin('pane_slider_options_plugin', Msg._OPTIONS));
+    blocklyExt.updateShadow(label, 'TEXT', '')
+    blocklyExt.updateShadow(options, 'OBJECT', '')
+  }
+}
+
+Blocks['pane_add_list_plugin'] = {
+  init() {
+    this.appendDummyInput()
+      .appendField(`下拉列表`)
+    const label = this.appendValueInput('LABEL')
+      .appendField(Msg._LABEL)
+      .setAlign(inputs.Align.RIGHT)
+      .setCheck('String');
+    const options = this.appendValueInput('OPTIONS')
+      .appendField(Msg._OPTIONS)
+      .setAlign(inputs.Align.RIGHT)
+      .setCheck('Object');
+    this.appendStatementInput("DO_CB")
+      .setCheck(null)
+      .setAlign(inputs.Align.RIGHT)
+      .appendField(Msg._ON_CHANGE);
+    this.setColour(Msg._COLOUR);
+    this.setInputsInline(true);
+    this.setPreviousStatement(true, null);
+    this.setNextStatement(true, null);
+    this.setTooltip(Msg.pane_add_list_tooltip);
+    this.mixin(blocklyExt.createContextMenuBlockMixin('pane_get_value_plugin', '控件值'));
+    blocklyExt.updateShadow(label, 'TEXT', '')
+    blocklyExt.updateShadow(options, 'OBJECT', '')
+  }
+}
+
+Blocks['pane_add_checkbox_plugin'] = {
+  init() {
+    this.appendDummyInput()
+      .appendField(`单选框`)
+    const label = this.appendValueInput('LABEL')
+      .appendField(Msg._LABEL)
+      .setAlign(inputs.Align.RIGHT)
+      .setCheck('String');
+    this.appendDummyInput()
+      .appendField(Msg._CHECKED)
+      .appendField(new FieldCheckbox('TRUE'), 'CHECKED')
+      .setAlign(inputs.Align.RIGHT);
+    this.appendStatementInput("DO_CB")
+      .setCheck(null)
+      .setAlign(inputs.Align.RIGHT)
+      .appendField(Msg._ON_CHANGE);
+    this.setColour(Msg._COLOUR);
+    this.setInputsInline(true);
+    this.setPreviousStatement(true, null);
+    this.setNextStatement(true, null);
+    this.setTooltip(Msg.pane_add_checkbox_tooltip);
+    this.mixin(blocklyExt.createContextMenuBlockMixin('pane_get_value_plugin', '控件值'));
+    blocklyExt.updateShadow(label, 'TEXT', '')
+  }
+}
+
+Blocks['pane_add_color_plugin'] = {
+  init() {
+    this.appendDummyInput()
+      .appendField(`拾色器`)
+    const label = this.appendValueInput('LABEL')
+      .appendField(Msg._LABEL)
+      .setAlign(inputs.Align.RIGHT)
+      .setCheck('String');
+    const hex = this.appendValueInput('COLOR')
+      .appendField('hex')
+      .setAlign(inputs.Align.RIGHT)
+      .setCheck('String');
+    this.appendStatementInput("DO_CB")
+      .setCheck(null)
+      .setAlign(inputs.Align.RIGHT)
+      .appendField(Msg._ON_CHANGE);
+    this.setColour(Msg._COLOUR);
+    this.setInputsInline(true);
+    this.setPreviousStatement(true, null);
+    this.setNextStatement(true, null);
+    this.setTooltip(Msg.pane_add_color_tooltip);
+    this.mixin(blocklyExt.createContextMenuBlockMixin('pane_get_value_plugin', '控件值'));
+    blocklyExt.updateShadow(label, 'TEXT', '')
+    blocklyExt.updateShadow(hex, 'TEXT', '#ff0000')
+  }
+}
+
+Blocks['pane_add_button_plugin'] = {
+  init() {
+    this.appendDummyInput()
+      .appendField(`按钮`)
+    const title = this.appendValueInput('TITLE')
+      .appendField(Msg._TITLE)
+      .setAlign(inputs.Align.RIGHT)
+      .setCheck('String');
+    this.appendStatementInput("DO_CB")
+      .setCheck(null)
+      .setAlign(inputs.Align.RIGHT)
+      .appendField(Msg._ON_CLICK);
+    this.setColour(Msg._COLOUR);
+    this.setInputsInline(true);
+    this.setPreviousStatement(true, null);
+    this.setNextStatement(true, null);
+    this.setTooltip(Msg.pane_add_button_tooltip);
+    blocklyExt.updateShadow(title, 'TEXT', '');
+  }
+}
+
+Blocks['pane_add_text_plugin'] = {
+  init() {
+    this.appendDummyInput()
+      .appendField(`文本`)
+    const label = this.appendValueInput('LABEL')
+      .appendField(Msg._LABEL)
+      .setAlign(inputs.Align.RIGHT)
+      .setCheck('String');
+    const text = this.appendValueInput('TEXT')
+      .appendField(Msg._TEXT)
+      .setAlign(inputs.Align.RIGHT)
+      .setCheck('String');
+    this.appendStatementInput("DO_CB")
+      .setCheck(null)
+      .setAlign(inputs.Align.RIGHT)
+      .appendField(Msg._ON_CHANGE);
+    this.setColour(Msg._COLOUR);
+    this.setInputsInline(true);
+    this.setPreviousStatement(true, null);
+    this.setNextStatement(true, null);
+    this.setTooltip(Msg.pane_add_text_tooltip);
+    blocklyExt.updateShadow(label, 'TEXT', '')
+    blocklyExt.updateShadow(text, 'TEXT', '')
+  }
+}
+
+Blocks['pane_get_value_plugin'] = {
+  init() {
+    this.appendDummyInput()
+      .appendField(Msg._VALUE);
+    this.setInputsInline(true);
+    this.setOutput(true);
+    this.setColour(Msg._COLOUR);
+    this.setTooltip(Msg.pane_get_value_tooltip);
+  }
+}
+

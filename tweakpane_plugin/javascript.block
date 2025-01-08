@@ -1,0 +1,173 @@
+// https://tweakpane.github.io/docs/
+const { Order } = javascript;
+javascriptGenerator.forBlock['load_tweakpane_script_plugin'] = (block, generator) => {
+  const url = generator.valueToCode(block, 'URL', Order.NONE) || `\'\'`;
+  const onFinishCb = `() => {\n${generator.statementToCode(block, 'ON_FINISH')}}`;
+
+  const fun = javascriptGenerator.provideFunction_('load_tweakpane_script_plugin', [`
+  // load_tweakpane_script_plugin block
+  function ${javascriptGenerator.FUNCTION_NAME_PLACEHOLDER_}(url, onFinishCb) { 
+    // 删除旧的
+    let script = document.getElementById('tweakpaneScript');
+    if (script) {
+      document.head.removeChild(script);
+    }
+    script = document.createElement("script");
+    script.id = 'tweakpaneScript';
+    script.src = url;
+    script.onload = () => {
+      if(appInstance._glob.gui) {
+        appInstance._glob.gui.dispose();
+        const elem = document.getElementById('tweakpaneContainer');
+        elem.parentElement.removeChild(elem);
+      }
+      const container = document.createElement('div');
+      container.style.position = 'absolute';
+      container.style.top = '10px';
+      container.style.right = '10px';
+      container.style.width = '260px';
+      container.style.zIndex = 1;
+      container.id = 'tweakpaneContainer';
+      document.getElementById('renderCanvas').parentElement.appendChild(container);
+      const version = Object.values(Tweakpane.VERSION).slice(0, -1).join('.');
+      const pane = new Tweakpane.Pane({container: container, title: 'Tweakpane' + ' ' + version});
+      appInstance._glob.gui = pane;
+
+      onFinishCb && onFinishCb();
+    }
+    document.head.appendChild(script);
+  }`]);
+  return `${fun}(${url}, ${onFinishCb});\n`
+}
+
+javascriptGenerator.forBlock['pane_add_slider_plugin'] = (block, generator) => {
+  const label = generator.valueToCode(block, 'LABEL', Order.NONE) || `\'\'`;
+  const options = generator.valueToCode(block, 'OPTIONS', Order.NONE) || `\{\}`;
+  const doCb = `() => {\n${generator.statementToCode(block, 'DO_CB')}}`;
+
+  const fun = javascriptGenerator.provideFunction_('pane_add_slider_plugin', [`
+  // pane_add_slider_plugin block
+  function ${javascriptGenerator.FUNCTION_NAME_PLACEHOLDER_}(label, options, doCb) { 
+    if(!appInstance._glob.gui) return;
+    const defaultOptions = {
+      min: 0,
+      max: 1,
+      value: 0.5,
+    }
+    Object.assign(defaultOptions, options);
+    const labels = {};
+    labels[label] = defaultOptions.value
+    const sliderInput = appInstance._glob.gui.addInput(labels, label, defaultOptions)
+    sliderInput.on('change', event => {
+      appInstance._glob.tweakPanValue = event.value;
+      doCb();
+    })
+  }`]);
+  return `${fun}(${label}, ${options}, ${doCb});\n`
+}
+
+javascriptGenerator.forBlock['pane_add_list_plugin'] = (block, generator) => {
+  const label = generator.valueToCode(block, 'LABEL', Order.NONE) || `\'\'`;
+  const options = generator.valueToCode(block, 'OPTIONS', Order.NONE) || `\{\}`;
+  const doCb = `() => {\n${generator.statementToCode(block, 'DO_CB')}}`;
+  
+  const fun = javascriptGenerator.provideFunction_('pane_add_list_plugin', [`
+  // pane_add_list_plugin block
+  function ${javascriptGenerator.FUNCTION_NAME_PLACEHOLDER_}(label, options, doCb) { 
+    if(!appInstance._glob.gui) return;
+    const defaultOptions = {
+      options: {}
+    }
+    Object.assign(defaultOptions.options, options);
+    const labels = {};
+    labels[label] = Object.entries(defaultOptions.options)[0][1];
+    const listInput = appInstance._glob.gui.addInput(labels, label, defaultOptions)
+    listInput.on('change', event => {
+      appInstance._glob.tweakPanValue = event.value;
+      doCb();
+    })
+  }`]);
+  return `${fun}(${label}, ${options}, ${doCb});\n`
+}
+
+javascriptGenerator.forBlock['pane_add_checkbox_plugin'] = (block, generator) => {
+  const label = generator.valueToCode(block, 'LABEL', Order.NONE) || `\'\'`;
+  const checked = block.getFieldValue('CHECKED') === 'TRUE';
+  const doCb = `() => {\n${generator.statementToCode(block, 'DO_CB')}}`;
+  
+  const fun = javascriptGenerator.provideFunction_('pane_add_checkbox_plugin', [`
+  // pane_add_checkbox_plugin block
+  function ${javascriptGenerator.FUNCTION_NAME_PLACEHOLDER_}(label, checked, doCb) { 
+    if(!appInstance._glob.gui) return;
+    const defaultOptions = {}
+    defaultOptions[label] = checked;
+    const checkboxInput = appInstance._glob.gui.addInput(defaultOptions, label)
+    checkboxInput.on('change', event => {
+      appInstance._glob.tweakPanValue = event.value;
+      doCb();
+    })
+  }`]);
+  return `${fun}(${label}, ${checked}, ${doCb});\n`
+}
+
+javascriptGenerator.forBlock['pane_add_color_plugin'] = (block, generator) => {
+  const label = generator.valueToCode(block, 'LABEL', Order.NONE) || `\'\'`;
+  const color = generator.valueToCode(block, 'COLOR', Order.NONE) || `\'\'`;
+  const doCb = `() => {\n${generator.statementToCode(block, 'DO_CB')}}`;
+
+  const fun = javascriptGenerator.provideFunction_('pane_add_color_plugin', [`
+  // pane_add_color_plugin block
+  function ${javascriptGenerator.FUNCTION_NAME_PLACEHOLDER_}(label, color, doCb) { 
+    if(!appInstance._glob.gui) return;
+    const defaultOptions = {}
+    color.substring(0,1) === '#' && (defaultOptions[label] = color);
+    const options = {view: 'color'}
+    const colorInput = appInstance._glob.gui.addInput(defaultOptions, label, options)
+    colorInput.on('change', event => {
+      appInstance._glob.tweakPanValue = event.value;
+      doCb();
+    })
+  }`]);
+  return `${fun}(${label}, ${color}, ${doCb});\n`
+}
+
+javascriptGenerator.forBlock['pane_add_button_plugin'] = (block, generator) => {
+  const title = generator.valueToCode(block, 'TITLE', Order.NONE) || `\'\'`;
+  const doCb = `() => {\n${generator.statementToCode(block, 'DO_CB')}}`;
+
+  const fun = javascriptGenerator.provideFunction_('pane_add_button_plugin', [`
+  // pane_add_button_plugin block
+  function ${javascriptGenerator.FUNCTION_NAME_PLACEHOLDER_}(title, doCb) { 
+    if(!appInstance._glob.gui) return;
+    const options = { title: title }
+    const btn = appInstance._glob.gui.addButton(options)
+    btn.on('click', () => {
+      doCb()
+    });
+  }`]);
+  return `${fun}(${title}, ${doCb});\n`
+}
+
+javascriptGenerator.forBlock['pane_add_text_plugin'] = (block, generator) => {
+  const label = generator.valueToCode(block, 'LABEL', Order.NONE) || `\'\'`;
+  const text = generator.valueToCode(block, 'TEXT', Order.NONE) || `\'\'`;
+  const doCb = `() => {\n${generator.statementToCode(block, 'DO_CB')}}`;
+
+  const fun = javascriptGenerator.provideFunction_('pane_add_text_plugin', [`
+  // pane_add_text_plugin block
+  function ${javascriptGenerator.FUNCTION_NAME_PLACEHOLDER_}(label, text, doCb) { 
+    if(!appInstance._glob.gui) return;
+    const defaultOptions = {}
+    defaultOptions[label] = text;
+    const textInput = appInstance._glob.gui.addInput(defaultOptions, label)
+    textInput.on('change', event => {
+      appInstance._glob.tweakPanValue = event.value;
+      doCb();
+    })
+  }`]);
+  return `${fun}(${label}, ${text}, ${doCb});\n`
+}
+
+javascriptGenerator.forBlock['pane_get_value_plugin'] = (block, generator) => {
+  return [`appInstance._glob.tweakPanValue`, Order.FUNCTION_CALL]
+}

@@ -1,0 +1,81 @@
+// https://tweakpane.github.io/docs/
+const { Order } = javascript;
+javascriptGenerator.forBlock['load_nipplejs_script_plugin'] = (block, generator) => {
+  const url = generator.valueToCode(block, 'URL', Order.NONE) || `\'\'`;
+  const onFinishCb = `() => {\n${generator.statementToCode(block, 'ON_FINISH')}}`;
+
+  const fun = javascriptGenerator.provideFunction_('load_nipplejs_script_plugin', [`
+  // load_nipplejs_script_plugin block
+  function ${javascriptGenerator.FUNCTION_NAME_PLACEHOLDER_}(url, onFinishCb) { 
+    let script = document.getElementById('nipplejsScript');
+    if (script) {
+      document.head.removeChild(script);
+    }
+    script = document.createElement("script");
+    script.id = 'nipplejsScript';
+    script.src = url;
+    script.onload = () => {
+      const root = document.getElementById('renderCanvasDiv');
+      let joystickDiv = document.getElementById('joystickDiv');
+      if(joystickDiv) {
+        root.removeChild(joystickDiv);
+      }
+      joystickDiv = document.createElement('div');
+      joystickDiv.id = 'joystickDiv';
+      joystickDiv.style.position = 'absolute';
+      joystickDiv.style.top = '0px';
+      joystickDiv.style.left = '0px';
+      joystickDiv.style.height = '100%';
+      joystickDiv.style.width = '100%';
+      joystickDiv.style.display = 'inline-block';
+      joystickDiv.style.zIndex = '1';
+      joystickDiv.style.pointerEvents = 'auto';
+      root.appendChild(joystickDiv);
+      onFinishCb && onFinishCb();
+    }
+    document.head.appendChild(script);
+  }`]);
+  return `${fun}(${url}, ${onFinishCb});\n`
+}
+javascriptGenerator.forBlock['create_joystick_plugin'] = (block, generator) => {
+  const id = generator.valueToCode(block, 'ID', Order.NONE) || `\'\'`;
+  const options = generator.valueToCode(block, 'OPTIONS', Order.NONE) || `\{\}`;
+  const fun = javascriptGenerator.provideFunction_('create_joystick_plugin', [`
+  // create_joystick_plugin block
+  function ${javascriptGenerator.FUNCTION_NAME_PLACEHOLDER_}(id, options) {
+    const joystickDiv = document.getElementById('joystickDiv');
+    let zone = document.getElementById('zoneJoystick');
+    if(zone) {
+      joystickDiv.removeChild(zone);
+    }
+    zone = document.createElement('div');
+    zone.id = id;
+    zone.style.width = '100%'; 
+    zone.style.height = '100%'; 
+    zone.style.pointerEvents = 'auto';
+    
+    if(options.mode && options.mode === 'static') {
+      joystickDiv.style.pointerEvents = 'none';
+      zone.style.width = '50%';
+      zone.style.height = 'auto';
+    }
+    joystickDiv.appendChild(zone);
+
+    const opt = { zone }
+    Object.assign(opt, options);
+    return nipplejs.create(opt);
+  }`]);
+  return [`${fun}(${id}, ${options})`, Order.FUNCTION_CALL]
+}
+javascriptGenerator.forBlock['listen_joystick_event_plugin'] = (block, generator) => {
+  const joystick = generator.valueToCode(block, 'JOYSTICK', Order.NONE) || `\'\'`;
+  const event = generator.quote_(block.getFieldValue('EVENT'));
+  if(!joystick) return '';
+  return `${joystick}.on(${event}, (evt, nipple)=> {
+    ${generator.statementToCode(block, 'DO_CB')}
+  });\n`
+}
+
+javascriptGenerator.forBlock['joystick_get_value_plugin'] = (block, generator) => {
+  return [`nipple`, Order.FUNCTION_CALL]
+}

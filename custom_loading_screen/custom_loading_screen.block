@@ -1,0 +1,55 @@
+
+Blockly.Blocks['custom_loading_screen'] = {
+  init() {
+    this.appendDummyInput()
+      .appendField('创建 自定义加载界面');
+    this.setInputsInline(false);
+    this.setOutput(true, null);
+    this.setColour(300);
+    this.setTooltip('自定义加载界面模板');
+    this.setHelpUrl('');
+  }
+}
+
+javascriptGenerator.forBlock['custom_loading_screen'] = (block, generator) => {
+  const fun = javascriptGenerator.provideFunction_('custom_loading_screen', [`
+  // custom_loading_screen block
+  function ${javascriptGenerator.FUNCTION_NAME_PLACEHOLDER_}() { 
+    class Preloader {
+      constructor(canvas) {
+        this._bar = document.createElement("div");
+        this._barDiv = document.createElement("div");
+        this._background = document.createElement("div");
+        //
+        this._barDiv.appendChild(this._bar);
+        this._background.appendChild(this._barDiv);
+        canvas.parentElement.appendChild(this._background);
+        // css
+        this._background.style.position = "absolute";
+        this._background.style.top = 0;
+        this._background.style.width = "100%";
+        this._background.style.height = "100%";
+        this._background.style.background = "black";
+        this._background.style.display = "grid";
+        this._background.style.placeItems = "center";
+        this._background.style.zIndex = "9999";
+        this._barDiv.style.width = "200px";
+        this._barDiv.style.height = "40px";
+        this._barDiv.style.padding = "8px";
+        this._barDiv.style.border = "1px solid #aaa";
+        this._bar.style.width = 0;
+        this._bar.style.height = "100%";
+        this._bar.style.background = "#1212ce";
+      }
+      update(percentage) {
+        this._bar.style.width = percentage + '%';
+      }
+      finish() {
+        this._background && this._background.parentElement && this._background.parentElement.removeChild(this._background);
+      }
+    }
+    return new Preloader(appInstance.canvas);
+  }
+     `]);
+  return [`${fun}()`, javascriptGenerator.ORDER_FUNCTION_CALL]
+}
